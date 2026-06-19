@@ -103,10 +103,18 @@ test_script:
   - '%APPVEYOR_BUILD_FOLDER%\windows\run-psexec-low-integrity-tests.bat'
   - 'copy /Y %USERPROFILE%\AppData\LocalLow\.coverage.psexec .coverage.psexec'
 
+  - 'dir .coverage*' # This should show three files to combine.
+  - 'set COVERAGE_FILE=' # This does nothing.
+  - 'echo COVERAGE_FILE=[%COVERAGE_FILE%]'
+  - ps: Remove-Item Env:COVERAGE_FILE -ErrorAction SilentlyContinue
+  - 'echo COVERAGE_FILE=[%COVERAGE_FILE%]'
+  - ps: Write-Host "COVERAGE_FILE=[$env:COVERAGE_FILE]"
+  - '%PYTHON_HOME%\Scripts\coverage.exe debug config'
+  # `combine` should report report "Combined 3 files"
+  - '%PYTHON_HOME%\Scripts\coverage.exe combine --debug=dataio --data-file=.coverage .coverage.admin .coverage.nonadmin .coverage.psexec'
+  # `combine` should remove the three input files.
   - 'dir .coverage*'
-  - 'set COVERAGE_FILE='
-  - '%PYTHON_HOME%\Scripts\coverage.exe combine .coverage.admin .coverage.nonadmin .coverage.psexec'
-  - '%PYTHON_HOME%\Scripts\coverage.exe report'
+  - '%PYTHON_HOME%\Scripts\coverage.exe report --data-file=.coverage'
 
 
 artifacts:
