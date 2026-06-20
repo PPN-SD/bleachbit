@@ -327,11 +327,14 @@ class ChaffDialog(Gtk.Dialog):
         self.when_finished_combo.set_active(0)  # Set default
         grid.attach(self.when_finished_combo, 1, 4, 1, 1)
 
+        # Do not include choose_folder_button: set_sensitive() on
+        # Gtk.FileChooserButton can crash on Windows when GSettings is not
+        # fully configured. The destination is read once at start anyway.
+        # https://github.com/bleachbit/bleachbit/issues/1780
         self._option_widgets = (
             self.inspiration_combo,
             self.stop_mode_combo,
             self.stop_value_spin,
-            self.choose_folder_button,
             self.when_finished_combo,
         )
 
