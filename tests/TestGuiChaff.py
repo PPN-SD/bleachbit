@@ -292,6 +292,24 @@ class GuiChaffTestCase(common.BleachbitTestCase):
 
     @patch('bleachbit.GuiChaff.make_files_thread')
     @patch('bleachbit.Chaff.have_models')
+    def test_option_widgets_disabled_during_generation(self, mock_have_models, mock_make_files):
+        """Option widgets are disabled while generating; folder button stays enabled."""
+        mock_have_models.return_value = True
+
+        self.dialog.choose_folder_button.set_filename(self.tempdir)
+        self.dialog.stop_value_spin.set_value(10)
+        self.dialog.inspiration_combo.set_active(0)
+
+        self.dialog.make_button.clicked()
+        self.refresh_gui(0.1)
+
+        for widget in self.dialog._option_widgets:
+            self.assertFalse(widget.get_sensitive(), widget)
+        # FileChooserButton must stay sensitive on Windows (issue #1780).
+        self.assertTrue(self.dialog.choose_folder_button.get_sensitive())
+
+    @patch('bleachbit.GuiChaff.make_files_thread')
+    @patch('bleachbit.Chaff.have_models')
     def test_abort_button(self, mock_have_models, mock_make_files):
         """Test that abort button sets the abort event"""
         mock_have_models.return_value = True
